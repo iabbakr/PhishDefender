@@ -1,1 +1,61 @@
-node_modules
+# Dependencies
+/node_modules
+
+# Next.js build output
+.next/
+out/
+
+# Production build
+/build
+
+# Debug / Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+pnpm-error.log*
+*.log
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+
+# Optional cache
+.cache/
+.vercel/
+*.swp
+
+# Coverage
+coverage/
+
+# Misc
+*.pid
+*.seed
+*.tgz
+
+# TypeScript incremental build files
+*.tsbuildinfo
+
+# Lint cache
+.eslintcache
+
+# Mac junk
+.AppleDouble
+.LSOverride
+
+# GitHub-specific
+*.orig
+
+# Ignore test snapshots
+*.snap
