@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -135,75 +134,99 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           </SidebarFooter>
         </Sidebar>
         <SidebarInset>
-          <header className="flex h-14 items-center justify-between gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
-            <SidebarTrigger className="md:hidden"/>
+          <header className="sticky top-0 z-0 flex h-14 items-center justify-between gap-4 border-b bg-card px-4 lg:h-[60px] lg:px-6">
+            <SidebarTrigger className="md:hidden" />
             <div className="flex flex-1 justify-end">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="secondary" size="icon" className="rounded-full">
-                      <Avatar>
-                        <AvatarImage src={user?.photoURL ?? undefined} alt={user?.displayName ?? ''} />
-                        <AvatarFallback><User /></AvatarFallback>
-                      </Avatar>
-                      <span className="sr-only">Toggle user menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>{user?.displayName || user?.email}</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard/profile">
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Profile</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={signOut}>
-                      <LogOut className="mr-2 h-4 w-4" />
-                      <span>Log out</span>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="secondary" size="icon" className="rounded-full shrink-0">
+                    <Avatar>
+                      <AvatarImage src={user?.photoURL ?? undefined} alt={user?.displayName ?? ''} />
+                      <AvatarFallback><User /></AvatarFallback>
+                    </Avatar>
+                    <span className="sr-only">Toggle user menu</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuLabel className="truncate">
+                    {user?.displayName || user?.email}
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/dashboard/profile">
+                      <User className="mr-2 h-4 w-4" />
+                      <span>Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={signOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </header>
+
           <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-            {children}
+            <div className="mx-auto w-full max-w-7xl">
+              {children}
+            </div>
           </main>
-          <footer className="mt-auto border-t bg-background p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
+
+          <footer className="mt-auto border-t bg-background p-4 sm:p-6">
+            <div className="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-6 md:grid-cols-3">
               <div className="flex flex-col gap-2">
                 <h3 className="font-semibold text-foreground">Join Our Community</h3>
                 <div className="flex items-center gap-4">
                   <Button asChild variant="outline" size="icon">
-                    <a href="#" target="_blank" rel="noopener noreferrer"><WhatsAppIcon /></a>
+                    <a href="#" target="_blank" rel="noopener noreferrer">
+                      <WhatsAppIcon />
+                    </a>
                   </Button>
                   <Button asChild variant="outline" size="icon">
-                    <a href="#" target="_blank" rel="noopener noreferrer"><TelegramIcon /></a>
+                    <a href="#" target="_blank" rel="noopener noreferrer">
+                      <TelegramIcon />
+                    </a>
                   </Button>
                   <Button asChild variant="outline" size="icon">
-                    <a href="#" target="_blank" rel="noopener noreferrer"><DiscordIcon /></a>
+                    <a href="#" target="_blank" rel="noopener noreferrer">
+                      <DiscordIcon />
+                    </a>
                   </Button>
                 </div>
               </div>
-              <div className="md:col-span-2 flex items-center gap-4">
-                <div className="flex-shrink-0">
-                  <Image src="/nda_badge.jpg" alt="School Badge" width={80} height={80} className="rounded-full" />
+
+              <div className="flex flex-col items-center gap-4 text-center sm:flex-row sm:items-start sm:text-left md:col-span-2">
+                <div className="shrink-0">
+                  <Image
+                    src="/nda_badge.jpg"
+                    alt="School Badge"
+                    width={80}
+                    height={80}
+                    className="rounded-full"
+                  />
                 </div>
-                <div>
+                <div className="min-w-0">
                   <h3 className="font-semibold text-foreground">A School Project</h3>
-                  <p className="text-xs text-muted-foreground mt-2">
-                    <strong>Design and Implementations of AI-Powered Phishing URL Detector with User Education Dashboard.</strong>
+                  <p className="mt-2 text-xs text-muted-foreground">
+                    <strong>
+                      Design and Implementations of AI-Powered Phishing URL Detector with
+                      User Education Dashboard.
+                    </strong>
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     by <strong>Abubakar ibrahim</strong> (NDAPGS/FMSIS/CBS012024/3660)
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="mt-1 text-xs text-muted-foreground">
                     Project Supervisor: <strong>Dr. IM Danjuma</strong>
                   </p>
                 </div>
               </div>
             </div>
+
             <Separator className="my-6" />
-            <div className="flex items-center justify-between text-xs text-muted-foreground">
+
+            <div className="mx-auto flex w-full max-w-7xl flex-col items-center gap-2 text-center text-xs text-muted-foreground sm:flex-row sm:justify-between sm:text-left">
               <p>&copy; {new Date().getFullYear()} PhishDefender. All Rights Reserved.</p>
               <Logo className="text-sm" />
             </div>

@@ -1,4 +1,3 @@
-
 'use server';
 /**
  * @fileOverview Analyzes a URL using GenAI and Hugging Face to determine if it is a phishing attempt.
@@ -8,6 +7,7 @@
  */
 
 import {ai} from '@/ai/genkit';
+import {googleAI} from '@genkit-ai/google-genai';
 import {z} from 'genkit';
 import {hfUrlTool} from '../tools/hf-url-tool';
 import { AnalyzeUrlWithGenAiOutput, AnalyzeUrlWithGenAiOutputSchema } from '@/lib/types';
@@ -42,6 +42,69 @@ URL: {{{url}}}
 `,
 });
 
+/**
+ * Retries a function with short exponential backoff. Only retries on
+ * transient upstream errors (e.g. 503 UNAVAILABLE from the Gemini API).
+ */
+async function withRetry<T>(
+  fn: () => Promise<T>,
+  retries = 1,
+  delayMs = 500
+): Promise<T> {
+  try {
+    return await fn();
+  } catch (e) {
+    const isRetryable =
+      e instanceof Error &&
+      (e.message.includes('UNAVAILABLE') || e.message.includes('503'));
+
+    if (retries <= 0 || !isRetryable) {
+      throw e;
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+    return withRetry(fn, retries - 1, delayMs * 2);
+  }
+}
+
+// Fallback chain: try the primary model first, then fall back to a
+// different model if it's overloaded. Built from models confirmed
+// available on this API key via ListModels.
+const MODEL_FALLBACK_CHAIN = [
+  'gemini-flash-latest',   // -> currently Gemini 3.5 Flash GA
+  'gemini-2.5-flash',      // stable, older generation fallback
+  'gemini-3.1-flash-lite', // fast, cheap, GA
+  'gemini-2.5-flash-lite', // last resort, most likely to have headroom
+] as const;
+
+async function runGeminiWithFallback(url: string) {
+  let lastError: unknown;
+
+  for (const modelName of MODEL_FALLBACK_CHAIN) {
+    try {
+      return await withRetry(() =>
+        geminiUrlPrompt(
+          { url },
+          { model: googleAI.model(modelName) }
+        )
+      );
+    } catch (e) {
+      const isUnavailable =
+        e instanceof Error &&
+        (e.message.includes('UNAVAILABLE') || e.message.includes('503'));
+
+      lastError = e;
+
+      if (!isUnavailable) {
+        throw e; // don't burn through fallbacks on non-transient errors
+      }
+      // otherwise, try the next model in the chain
+    }
+  }
+
+  throw lastError;
+}
+
 const analyzeUrlFlow = ai.defineFlow(
   {
     name: 'analyzeUrlFlow',
@@ -49,7 +112,7 @@ const analyzeUrlFlow = ai.defineFlow(
     outputSchema: AnalyzeUrlWithGenAiOutputSchema,
   },
   async ({url}) => {
-    const geminiResult = await geminiUrlPrompt({url});
+    const geminiResult = await runGeminiWithFallback(url);
 
     if (!geminiResult.output) {
       throw new Error('AI analysis failed to produce a result.');
@@ -62,7 +125,6 @@ const analyzeUrlFlow = ai.defineFlow(
     };
   }
 );
-
 
 export async function analyzeUrlWithGenAi(
   args: z.infer<typeof AnalyzeUrlInputSchema>

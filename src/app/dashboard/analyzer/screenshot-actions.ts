@@ -34,6 +34,10 @@ export async function getScreenshotDataUri(
   screenshotApiUrl.searchParams.set('block_ads', 'true');
   screenshotApiUrl.searchParams.set('cache', 'true');
   screenshotApiUrl.searchParams.set('delay', '2'); // Add a delay for JS-heavy sites
+  // Some sites (e.g. bot-protected pages) return non-2xx statuses even
+  // though there's a real page to screenshot. Without this, ScreenshotOne
+  // refuses to capture anything and returns a 500 instead.
+  screenshotApiUrl.searchParams.set('ignore_host_errors', 'true');
 
   try {
     const response = await fetch(screenshotApiUrl.toString());
