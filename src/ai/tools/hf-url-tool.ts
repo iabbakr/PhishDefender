@@ -14,7 +14,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import * as ort from 'onnxruntime-node';
+import * as ort from 'onnxruntime-web';
 import fs from 'fs';
 import path from 'path';
 
